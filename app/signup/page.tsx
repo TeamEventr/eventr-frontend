@@ -6,12 +6,22 @@ import {faCircleNotch, faEye, faEyeSlash, faWarning } from "@fortawesome/free-so
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { API_ENDPOINTS } from "@/server/constraints";
+import { API_ENDPOINTS } from "@/server/endpoints";
+import { useSearchParams } from "next/navigation";
+import secureLocalStorage from "react-secure-storage";
+import { createHash } from "crypto";
 
-interface SignUpDetails{
-    userName: string;
-    userMail: string;
-    passWord: string;
+interface SignUpResponse {
+    email: string;
+    expiryAt: string;
+    message: string;
+    tempToken: string;
+    username: string;
+}
+interface SignUpForm{
+    email: string;
+    username: string;
+    password: string;
 }
 
 interface CheckUsernameResponse {
@@ -21,12 +31,15 @@ interface CheckUsernameResponse {
 
 
 export default function SignUp() {
+
     const router = useRouter();
+    const params = useSearchParams();
+    
     const [userName, setUserName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
-
+    const host = params.get('host');
     const [isAvailable, setIsAvailable] =  useState<boolean | null>(null);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
     const [isPassVisible, setPassVisible] = useState<boolean>(false);
@@ -49,12 +62,28 @@ export default function SignUp() {
     //API to check if username available
     const checkUserName = async (userName: string) => {
         try {
-            const response = await ky.post(API_ENDPOINTS.USERNAME_CHECK,
-                {json: userName}).json<CheckUsernameResponse>();
+            const response = await ky.post(API_ENDPOINTS.USERNAME_CHECK,{
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                json: {username: userName}
+            }).json<CheckUsernameResponse>();
             setIsAvailable(response.available)
         }
         catch (error) {
-            setIsAvailable(false);
+            if(error instanceof HTTPError){
+                const errorData = await error.response.json();
+                if (error.response.status === 500) {
+                    setInputErrMsg("Server error. Please try again later.");
+                } else if(error.response.status === 409){
+                    setInputErrMsg("Username is already taken.");
+                    setIsAvailable(false);
+                } else {
+                    setInputErrMsg("An unexpected error occurred. Please try again.");
+                }
+            } else {
+                setInputErrMsg("An unexpected error occurred. Please try again.");
+            }
         }
     }
 
@@ -94,12 +123,12 @@ export default function SignUp() {
         //Conditions to check if inputs are correct
         const conditions = [
           { condition: userName === "" || email === "" || password === "" || confirmPassword === "", message: "Please fill all the fields." },
-          { condition: userName.length < 3, message: "Username must be at least 3 characters long." },
+          { condition: userName.length < 5 || userName.length > 32, message: "Username must be 5-25 characters long." },
           { condition: !/^[a-zA-Z0-9_.]+$/.test(userName), message: "Username can only have letters, numbers . and _." },
           { condition: isAvailable === false, message: "Username is already taken." },
           { condition: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), message: "Email is not in the correct format." },
           { condition: checkPasswordStrength(password) < 4, message: "Password must contain A-Z, a-z and 0-9." },
-          { condition: password.length < 8, message: "Password must be at least 8 characters long." },
+          { condition: password.length < 8 && password.length > 30, message: "Password must be between 8 and 30 characters long." },
           { condition: password !== confirmPassword, message: "Passwords do not match." },
           { condition: !termsRef.current?.checked, message: "Please agree to the terms and conditions." },
         ];
@@ -110,56 +139,76 @@ export default function SignUp() {
             return;
           }
         }
-    
+        const encryptedPass = createHash("sha256").update(password).digest("hex");
         //Create SigUpDetails onbject
-        const userSignUp: SignUpDetails = {
-          userName: userName,
-          userMail: email,
-          passWord: password,
+        const userSignUp: SignUpForm = {
+            username: userName,
+            email: email,
+            password: encryptedPass
         };
-    
         setIsSigningUp(true);
 
         try {
-          const response = await ky.post(API_ENDPOINTS.USER_SIGNUP, {
-            json: userSignUp,
-          }).json();
+          const response = await ky.post(API_ENDPOINTS.USER_SIGNUP,{
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            json: userSignUp
+        }).json<SignUpResponse>();
           // Code after signup successful
-          router.push("/regisration/success");
-        //API failures
-        } catch (error) {
-          if (error instanceof HTTPError) {
-            if (error.response.status === 500) {
-              setSignUpErrMsg("Server error. Please try again later.");
-            }
-            const errorData = await error.response.json();
-            switch (errorData.message) {
-              case "badRequest":
-                setSignUpErrMsg("Bad request. Please check your input.");
-                break;
-              case "emailExists":
-                setSignUpErrMsg("Email already exists. Please try another.");
-                break;
-              case "invalidCreds":
-                setSignUpErrMsg("Unauthorized. Please check your credentials.");
-                break;
-              default:
-                setSignUpErrMsg("An unexpected error occurred. Please try again.");
-            }
-          } else if (error instanceof TimeoutError) {
-            setSignUpErrMsg("Request timed out. Please try again.");
+          secureLocalStorage.setItem('accessKey', response.tempToken);          
+          secureLocalStorage.setItem('email', response.email);
+          secureLocalStorage.setItem('username', response.username);
+          if (host) {
+            router.push("/register/otp?verify=user&host=true");
           } else {
-            setSignUpErrMsg("An unexpected error occurred. Please try again.");
+          router.push("/register/otp?verify=user");
           }
+        //API failures
+    } catch (error) {
+    
+        if (error instanceof HTTPError) {
+            const errorData = await error.response.json();
+            
+            switch (error.response.status) {
+                case 400:
+                    setSignUpErrMsg("Bad request. Please check your input.");
+                    break;
+                case 409:
+                    setSignUpErrMsg(errorData.message === "Username or email have already been taken"
+                        ? "Email or Username already exists."
+                        : "Account registration is already underway. Redirecting to OTP."
+                    );
+
+                    if (errorData.message === "Account registration already underway") {
+                        if (host) {
+                            router.push("/register/otp?verify=user&host=true");
+                        } else {
+                            router.push("/register/otp?verify=user");
+                        }
+                    }
+                    break;
+                case 500:
+                    setSignUpErrMsg("Server error. Please try again later.");
+                    break;
+                default:
+                    setSignUpErrMsg("An unexpected error occurred. Please try again.");
+            }
+        } else if (error instanceof TimeoutError) {
+            setSignUpErrMsg("Request timed out. Please try again.");
+        } else {
+            setSignUpErrMsg("An unexpected error occurred. Please try again.");
+        }
+
         } finally {
           setIsSigningUp(false);
         }
-      };
-
+    };
+    
 
     return(
     <div className="relative flex h-full my-16 items-center justify-center rounded-lg">
-        <form onSubmit={handleSignUp} className="-translate-y-8 bg-black border-2 border-zinc-500/20 rounded-lg w-96 h-[540px] p-6 flex flex-col gap-2 justify-center relative">
+        <form onSubmit={handleSignUp} className="-translate-y-8 bg-black border-2 border-zinc-500/20 rounded-lg w-96 h-[480px] p-6 flex flex-col gap-2 justify-center relative">
             <div className="w-full relative text-3xl">
                 <p>Create Account</p>
             </div>
@@ -231,14 +280,14 @@ export default function SignUp() {
                     disabled={isSigningUp}>
                 {isSigningUp ? <p><FontAwesomeIcon icon={faCircleNotch} spin /></p> : <p>Create Account</p>}</button>
 
-                <p className="text-xs text-zinc-400 my-1">or</p>
+                {/* <p className="text-xs text-zinc-400 my-1">or</p>
 
                 <button type="button" className="w-full flex items-center justify-center gap-2 text-zinc-300 p-2 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 hover:ring-1 focus:ring-1 ring-gray-900">
                     <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
                     <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
                     </svg>
                     Sign In with Google
-                </button>
+                </button> */}
 
             </div>
 
