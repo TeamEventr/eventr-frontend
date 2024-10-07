@@ -1,1 +1,1 @@
-# Preview Website of Eventr - A social ticket booking platform!
+# Front-end of EventR, A social ticketing platform!
