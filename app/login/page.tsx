@@ -11,8 +11,7 @@ interface LogInDetails{
     passWord: string;
 }
 
-export default function LogIn() {
-    
+export default function Page() {
     const [userName, setUserName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -95,11 +94,9 @@ export default function LogIn() {
           setIsLogginIn(false);
         }
       };
-
-
-    return(
-    <form onSubmit={handleLogIn} className= "relative w-96 h-[416px] p-6 flex flex-col gap-2 justify-center rounded-lg bg-zinc-950 bg-opacity-50 backdrop-blur-md border border-gray-500 border-opacity-10">
-
+    return (
+    <div className="relative flex h-screen items-center justify-center">
+        <form onSubmit={handleLogIn} className= "relative bg-grey-900 -translate-y-16 w-96 h-[416px] p-6 flex flex-col gap-2 justify-center rounded-lg bg-zinc-950 bg-opacity-50 backdrop-blur-md border border-gray-500 border-opacity-10">
         <div className="w-full relative text-2xl">
             <p>Log In</p>
         </div>
@@ -153,5 +150,6 @@ export default function LogIn() {
             <p className="w-full text-right text-sm text-zinc-500">Dont have an account? <Link href='/signup' className="text-zinc-300 underline">Sign up</Link></p>
         </div>
     </form>
+    </div>
     )
 }
