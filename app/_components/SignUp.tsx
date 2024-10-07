@@ -5,7 +5,6 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faCircleNotch, faEye, faEyeSlash, faWarning } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import DatePicker from "react-datepicker";
 
 interface SignUpDetails{
     userName: string;
@@ -29,6 +28,8 @@ export default function SignUp() {
     const [isAvailable, setIsAvailable] =  useState<boolean | null>(null);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
     const [isPassVisible, setPassVisible] = useState<boolean>(false);
+
+    const [userSignUp, setUserSignUp] = useState<SignUpDetails | null>(null);
 
     const [inputErrMsg, setInputErrMsg] = useState<string | null>(null); 
     const [signUpErrMsg, setSignUpErrMsg] = useState<string>('')
@@ -157,13 +158,13 @@ export default function SignUp() {
 
 
     return(
-    <div className="relative flex h-screen items-center justify-center rounded-lg bg-zinc-950 bg-opacity-50 shadow-soft backdrop-blur-md border border-gray-500 border-opacity-10">
-        {/* <div className="relative rounded-l-lg -translate-y-8 w-96 h-[576px] p-2 flex items-center justify-center">
+    <div className="flex rounded-lg bg-zinc-950 bg-opacity-50 shadow-soft backdrop-blur-md border border-gray-500 border-opacity-10">
+        <div className="relative w-96 h-[576px] p-2 flex items-center justify-center">
             <Image fill className="object-cover rounded-l-lg brightness-50" src="https://images.unsplash.com/photo-1549194400-06e6874c2fd1?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="SignUp"/>
             <div className="relative w-72 h-96 rounded-lg bg-zinc-950 bg-opacity-75 backdrop-blur-sm">
             </div>
-        </div> */}
-        <form onSubmit={handleSignUp} className="-translate-y-8 bg-black rounded-r-lg w-96 h-[576px] p-6 flex flex-col gap-2 justify-center relative">
+        </div>
+        <form onSubmit={handleSignUp} className="w-96 h-[576px] p-6 flex flex-col gap-2 justify-center relative">
 
             <div className="w-full relative text-2xl">
                 <p>Create Account</p>
@@ -203,7 +204,7 @@ export default function SignUp() {
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-1 rounded-lg font-mono bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"/>
+                    className="w-full p-1 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"/>
                 
                 <button type="button" onClick={() => setPassVisible(!isPassVisible)} className="bg-zinc-900 absolute right-2 top-7 text-zinc-500" >{isPassVisible ? <FontAwesomeIcon icon={faEyeSlash}/> : <FontAwesomeIcon icon={faEye}/> }</button>   
                 
@@ -220,7 +221,7 @@ export default function SignUp() {
                 <input type={isPassVisible ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full p-1 rounded-lg font-mono bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"/>
+                    className="w-full p-1 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"/>
                 <button type="button" onClick={() => setPassVisible(!isPassVisible)} className="bg-zinc-900 absolute right-2 top-7 text-zinc-500" >{isPassVisible ? <FontAwesomeIcon icon={faEyeSlash}/> : <FontAwesomeIcon icon={faEye}/> }</button>   
             </div>
 
@@ -247,9 +248,9 @@ export default function SignUp() {
 
             </div>
 
-            {/* <div className="mt-2">
+            <div className="mt-2">
                 <p className="w-full text-right text-sm text-zinc-500">Already have an account? <Link href='/login' className="text-zinc-300 underline">Login</Link></p>
-            </div> */}
+            </div>
         </form>
     </div>
     )
