@@ -2,18 +2,57 @@
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ky, { HTTPError, TimeoutError } from "ky";
-import { useState, useEffect, useRef, ChangeEvent, KeyboardEvent, ClipboardEvent } from "react";
+import { useState, useEffect, useRef, ChangeEvent, KeyboardEvent, ClipboardEvent, Suspense } from "react";
+import { useRouter } from "next/navigation";
+import { API_ENDPOINTS } from "@/server/endpoints";
+import { useSearchParams } from "next/navigation";
+import secureLocalStorage from "react-secure-storage";
 
-export default function OtpVerify({ CodeFor }: { CodeFor: string }) {
+interface PermanentToken {
+        token: string,
+        message: string,
+        username: string,
+        email: string,
+        firstName: string,
+        middleName: string,
+        lastName: string,
+        profilePictureURL: string,
+        phoneNumber: string
+        city: string,
+        accountStatus: string,
+}
+
+export default function OtpVerify() {
     //codeFor: 
     // 1: verification - verify email address on sign up
     // 2: authentication - verify it is user while forgot password, changing password, phone number, making event public or deleting account.
-    const userEmail = "karanhathwar@gmail.com";
 
     const [values, setValues] = useState<string[]>(Array(6).fill(""));
     const [verifyErrMsg, setVerifyErrMsg] = useState<string | null>(null);
     const [isVerifying, setIsVerifying] = useState(false);
     const [timeLeft, setTimeLeft] = useState(300);
+    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
+    const params = useSearchParams();
+    const router = useRouter();
+    const type = params.get('verify');
+    const host = params.get('host');
+
+    useEffect(() => {
+        const storedEmail = secureLocalStorage.getItem('email');
+        const storedUsername = secureLocalStorage.getItem('username');
+
+        if (storedEmail && storedUsername) {
+            if (typeof storedEmail === 'string') {
+                setEmail(storedEmail);
+            }
+            if (typeof storedUsername === 'string') {
+                setUsername(storedUsername);
+            }
+        }
+        secureLocalStorage.removeItem('email');
+        secureLocalStorage.removeItem('username');
+    }, []);
 
     const inputsRef = useRef<HTMLInputElement[]>([]);
 
@@ -68,13 +107,35 @@ export default function OtpVerify({ CodeFor }: { CodeFor: string }) {
 
     const handleResend = async () => {
         try {
-            await ky.post("RESEND_OTP_ENDPOINT");
+            const response = await ky.post(API_ENDPOINTS.USER_OTP_RESEND, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${secureLocalStorage.getItem('accessKey')}`
+                },
+                json: { username: username, email: email }
+            });
             setTimeLeft(300);
             setVerifyErrMsg("OTP resent successfully.");
             setValues(Array(6).fill(""));
             inputsRef.current[0].focus();
         } catch (error) {
-            setVerifyErrMsg("Failed to resend. Please try again.");
+            if (error instanceof HTTPError) {
+                if (error.response.status === 500) {
+                    setVerifyErrMsg("Server error. Please try again later.");
+                }
+                if (error.response.status === 408) {
+                    setVerifyErrMsg("Registration failed. Please try again.");
+                    router.push('/register');
+                }
+                if (error.response.status === 429) {
+                    setVerifyErrMsg("Too many reattempts. Please try again later.");
+                }
+            } else if (error instanceof TimeoutError) {
+                //if 408 then delete the tokens and push user to signup
+                setVerifyErrMsg("Request timed out. Please try again.");
+            } else {
+                setVerifyErrMsg("An error occurred. Please try again.");
+            }
         }
     }
 
@@ -87,26 +148,35 @@ export default function OtpVerify({ CodeFor }: { CodeFor: string }) {
         }
         setIsVerifying(true);
         try {
-            const response = await ky.post("VERIFY_OTP_ENDPOINT", {
-              json: otp,
-            }).json();
-            //handle otp success
+            const response = await ky.post(API_ENDPOINTS.USER_OTP_VERIFY, {
+                headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${secureLocalStorage.getItem('accessKey')}`
+                },
+                json: { username: username, email: email, otp: otp }
+            }).json<PermanentToken>();
+            secureLocalStorage.removeItem('accessKey');
+            secureLocalStorage.setItem('accessKey', response.token);
+            secureLocalStorage.setItem('username', response.username);
+            if (host){
+                router.push(`/register/host`);
+            } else {
+                router.push('/register/success')
+            }
         } 
         catch (error) {
             if (error instanceof HTTPError) {
                 if (error.response.status === 500) {
-                setVerifyErrMsg("Server error. Please try again later.");
+                    setVerifyErrMsg("Server error. Please try again later.");
                 }
-            const errorData = await error.response.json();
-            switch (errorData.message) {
-                case "OTP_EXPIRED":
-                    setVerifyErrMsg("OTP expired. Please request a new one.");
-                case "OTP_INCORRECT":
-                    setVerifyErrMsg("Incorrect OTP. Please try again.");
-                default:
-                    setVerifyErrMsg("An error occurred. Please try again.");
+                if (error.response.status === 401) {
+                    setVerifyErrMsg("The OTP is invalid. Please try again.");
+                }
+                if (error.response.status === 400) {
+                    setVerifyErrMsg("We could not verify your OTP. Please try again.");
                 }
             } else if (error instanceof TimeoutError) {
+                //if 408 then delete the tokens and push user to signup
                 setVerifyErrMsg("Request timed out. Please try again.");
             } else {
                 setVerifyErrMsg("An error occurred. Please try again.");
@@ -117,12 +187,14 @@ export default function OtpVerify({ CodeFor }: { CodeFor: string }) {
     };
 
     return (
-        <div className= "relative w-96 h-76 p-6 flex flex-col justify-center rounded-lg bg-zinc-950 bg-opacity-50 shadow-soft backdrop-blur-md border border-gray-500 border-opacity-10">
+        <Suspense fallback={<div>Loading...</div>}>
+        <div className="flex h-screen w-full items-center justify-center">
+        <div className= "relative w-96 h-76 p-6 -translate-y-16 flex flex-col justify-center rounded-lg bg-black bg-opacity-50 border-2 border-zinc-500/20 border-opacity-10">
             <div className="w-full relative text-2xl">
-                <p>{CodeFor === "verification" ? "Verify your Email" : "Verify that it's you"}</p>
+                <p>Verify your Email</p>
             </div>
             <div className="text-sm text-gray-500 mt-1">
-                <p>Enter the code sent to {userEmail}.</p>
+                <p>Enter the code sent to {email}.</p>
                 <p>OTP expires in {timeLeft}s</p>
             </div>
             <form onSubmit={handleSubmit} className="flex flex-col">
@@ -150,5 +222,7 @@ export default function OtpVerify({ CodeFor }: { CodeFor: string }) {
                 <p className="text-sm text-gray-500">Didn"t recieve code? <button onClick={handleResend} className="text-gray-300 underline">Resend</button></p>
             </div>
         </div>
+        </div>
+        </Suspense>
     )
 }
