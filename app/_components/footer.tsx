@@ -1,51 +1,95 @@
+'use client'
+
+import { useState } from 'react'
 import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faTwitter, faInstagram, faLinkedin } from "@fortawesome/free-brands-svg-icons"
+import { faTwitter, faInstagram } from "@fortawesome/free-brands-svg-icons"
 
 export default function Footer(){
+    const [email, setEmail] = useState('')
+    const [subscribeStatus, setSubscribeStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setSubscribeStatus('loading')
+        // Simulate API call
+        setTimeout(() => {
+            if (email.includes('@')) {
+                setSubscribeStatus('success')
+            } else {
+                setSubscribeStatus('error')
+            }
+        }, 1000)
+    }
     return(
-        <footer className="mt-8 md:mt-16 bg-pure p-2 md:p-4 pt-6 relative z-40 bottom-0 left-0 w-full">
-        <div className="flex flex-col gap-4 md:gap-4 mb-4 sm:flex-row justify-between mx-4 md:mx-16">
-            <div className="flex flex-col md:w-[800px] items-center">
-            <h2 className="text-lg font-bold w-full">About Us</h2>
-            <p className="text-sm md:text-base md:mt-2">Welcome to Eventr, where we believe every event is an opportunity for connection! 
-                Our mission is to foster the largest experience community, merging ticketing with a social media platform. 
-                With Eventr, there are no more awkward introductions—Gen Z and millennials can connect before events for unforgettable 
-                experiences. Join us as we transform the event landscape in India—where every ticket tells a story!</p>
-            </div>
-            <div className="flex flex-col w-80">
-                <h2 className="text-lg font-bold">Contact Us</h2>
-                <p className="text-sm md:text-base md:mt-2">JP Nagar 8th Phase, Bengaluru</p>
-                <p className="text-sm md:text-base">Phone: +91 6363345104 </p>
-                <p className="text-sm md:text-base">Hello.eventr@gmail.com</p>
-                <div className="hidden lg:hidden">
-                    <h2 className="text-lg font-bold mt-4">Important Links</h2>
-                    <div className="md:mt-2 flex w-full gap-8">
-                        <p className="text-sm w-12 md:text-base font-sans"><Link href="/">Home</Link></p>
-                        <p className="text-sm md:text-base font-sans"><Link href="/myprofile">My Profile</Link></p>
+        <footer className="mt-8 md:mt-16 bg-black text-white p-8 relative z-40 w-full">
+            <div className="container mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                    <div className="flex flex-col">
+                        <h2 className="text-xl font-bold mb-4">About Us</h2>
+                        <p className="text-sm">EventR is your go-to platform for discovering and organizing unforgettable events. Join us in creating memories that last a lifetime.</p>
                     </div>
-                    <div className="flex w-full gap-8">
-                        <p className="text-sm w-12 md:text-base font-sans"><Link href="/login">Login</Link></p>
-                        <p className="text-sm md:text-base font-sans"><Link href="/signup">Sign Up</Link></p>
+                    <div className="flex flex-col">
+                        <h2 className="text-xl font-bold mb-4">Contact Us</h2>
+                        <address className="not-italic text-sm">
+                            <p>JP Nagar 8th Phase, Bengaluru, 560076</p>
+                            <p className="mt-2">Phone: <a href="tel:+12345678901" className="hover:text-purple-400 transition-colors">+91 6363345104 </a></p>
+                            <p className="mt-2">Email: <a href="mailto:contact@eventr.com" className="hover:text-purple-400 transition-colors">hello.eventr@gmail.com</a></p>
+                        </address>
+                    </div>
+                    <div className="flex flex-col">
+                        <h2 className="text-xl font-bold mb-4">Quick Links</h2>
+                        <nav>
+                            <ul className="space-y-2">
+                                {['Home', 'My Profile', 'Login', 'Sign Up'].map((item) => (
+                                    <li key={item}>
+                                        <Link href={`/${item.toLowerCase().replace(' ', '')}`} className="text-sm hover:text-purple-400 transition-colors">
+                                            {item}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                    </div>
+                    <div className="flex flex-col">
+                        <h2 className="text-xl font-bold mb-4">Newsletter</h2>
+                        <p className="text-sm mb-4">Stay updated with our latest events and offers.</p>
+                        <form onSubmit={handleSubscribe} className="flex flex-col space-y-2">
+                            <input
+                                type="email"
+                                placeholder="Enter your email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+                                required
+                            />
+                            <button
+                                type="submit"
+                                disabled={subscribeStatus === 'loading'}
+                                className="bg-purple-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 transition-colors"
+                            >
+                                {subscribeStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
+                            </button>
+                            {subscribeStatus === 'success' && (
+                                <p className="text-green-400 text-sm">Thank you for subscribing!</p>
+                            )}
+                            {subscribeStatus === 'error' && (
+                                <p className="text-red-400 text-sm">Please enter a valid email address.</p>
+                            )}
+                        </form>
                     </div>
                 </div>
-            </div>
-            <div className="hidden flex-col w-64">
-                <h2 className="text-lg font-bold">Important Links</h2>
-                <div className="md:mt-2 flex w-full gap-8">
-                    <p className="text-sm w-12 md:text-base font-sans"><Link href="/">Home</Link></p>
-                    <p className="text-sm md:text-base font-sans"><Link href="/myprofile">My Profile</Link></p>
+                <div className="mt-12 pt-4 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+                    <p className="text-sm mb-4 md:mb-0">© 2024 EventR. All rights reserved.</p>
+                    <div className="flex space-x-6">
+                        <Link href="https://www.instagram.com/eventrco.in" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" className="transform hover:scale-110 transition-transform">
+                            <FontAwesomeIcon icon={faInstagram} className="text-white hover:text-purple-400 transition-colors" size="lg" />
+                        </Link>
+                        <Link href="https://twitter.com/eventr" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Twitter" className="transform hover:scale-110 transition-transform">
+                            <FontAwesomeIcon icon={faTwitter} className="text-white hover:text-purple-400 transition-colors" size="lg" />
+                        </Link>
+                    </div>
                 </div>
-                <div className="md:mt-2 flex w-full gap-8">
-                    <p className="text-sm w-12 md:text-base font-sans"><Link href="/login">Login</Link></p>
-                    <p className="text-sm md:text-base font-sans"><Link href="/signup">Sign Up</Link></p>
-                </div>
-            </div>
-            </div>
-            <div className="flex text-gray items-center gap-4 justify-center md:justify-end mb-16 md:mb-0">
-                <p className="text-sm text-center">© 2024 EventR. All rights reserved.</p>
-                <Link href="https://www.instagram.com/eventrco.in?igsh=MTVvZDhiZGppaHUwZw=="><FontAwesomeIcon icon={faInstagram}/></Link>
-                <Link href="/"><FontAwesomeIcon icon={faLinkedin}/></Link>
             </div>
         </footer>
     )

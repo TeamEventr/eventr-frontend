@@ -227,7 +227,7 @@ export default function SignUp() {
     return(
     <div className="relative flex h-full my-16 items-center justify-center rounded-lg">
 
-        <form onSubmit={handleSubmit} className="-translate-y-8 bg-black border-2 border-zinc-500/20 rounded-lg w-96 h-max p-6 flex flex-col gap-2 justify-center relative">
+        <form onSubmit={handleSubmit} className="-translate-y-8 bg-zinc-950 border-2 border-zinc-500/20 rounded-lg w-96 h-max p-6 flex flex-col gap-2 justify-center relative">
 
             <div className="w-full relative text-3xl">
                 <p>Complete Your Host Profile</p>

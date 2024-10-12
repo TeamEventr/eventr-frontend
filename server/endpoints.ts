@@ -7,4 +7,9 @@ export const API_ENDPOINTS = {
     HOST_OTP_VERIFY: `${API_SERVER}/host/register/otp/verify`,
     USER_OTP_RESEND: `${API_SERVER}/user/register/otp/resend`,
     HOST_OTP_RESEND: `${API_SERVER}/host/register/otp/resend`,
+
+    USER_LOGIN: `${API_SERVER}/user/login`,
+    USER_LOGOUT: `${API_SERVER}/user/logout`,
+
+    USERNAME_UPDATE: `${API_SERVER}/user/update/username`,
 };

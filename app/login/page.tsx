@@ -96,8 +96,8 @@ export default function Page() {
       };
     return (
     <div className="relative flex h-screen items-center justify-center">
-        <form onSubmit={handleLogIn} className= "relative bg-grey-900 -translate-y-16 w-96 h-[416px] p-6 flex flex-col gap-2 justify-center rounded-lg bg-zinc-950 bg-opacity-50 backdrop-blur-md border border-gray-500 border-opacity-10">
-        <div className="w-full relative text-2xl">
+        <form onSubmit={handleLogIn} className= "relative bg-zinc-950 -translate-y-16 w-96 p-6 flex flex-col gap-2 justify-center rounded-lg backdrop-blur-md border-2 border-zinc-500/20">
+        <div className="w-full relative text-3xl">
             <p>Log In</p>
         </div>
 
@@ -107,7 +107,7 @@ export default function Page() {
         </div>
 
         <div className="relative">
-            <label htmlFor="email" className="text-sm text-zinc-500">Email</label>
+            <label htmlFor="email" className="text-sm text-zinc-400">Email</label>
             <input 
                 value={email}
                 id="email"
@@ -117,25 +117,24 @@ export default function Page() {
         </div>
 
         <div className="relative">
-            <label htmlFor="password" className="text-sm text-zinc-500">Password</label>
+            <label htmlFor="password" className="text-sm text-zinc-400">Password</label>
             <input type={isPassVisible ? "text" : "password"} 
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-1 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"/>
+                className="w-full p-1 rounded-lg bg-zinc-900 border font-mono border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"/>
             
-            <button type="button" onClick={() => setPassVisible(!isPassVisible)} className="bg-zinc-900 absolute right-2 top-7 text-zinc-500" >{isPassVisible ? <FontAwesomeIcon icon={faEyeSlash}/> : <FontAwesomeIcon icon={faEye}/> }</button>   
+            <button type="button" onClick={() => setPassVisible(!isPassVisible)} className="bg-zinc-900 absolute right-2 top-7 text-zinc-400" >{isPassVisible ? <FontAwesomeIcon icon={faEye}/> : <FontAwesomeIcon icon={faEyeSlash}/> }</button>   
 
         </div>
 
         <div className="flex flex-col items-center mt-8">
-
             <button type="submit"
                 className="w-full p-2 rounded-lg bg-zinc-900 text-zinc-300 border border-gray-500 border-opacity-10 hover:ring-1 focus:ring-1 ring-gray-900"
                 disabled={isLogginIn}>
             {isLogginIn ? <p><FontAwesomeIcon icon={faCircleNotch} spin /></p> : <p>Log In</p>}</button>
 
-            <p className="text-xs text-zinc-500 my-1">or</p>
+            <p className="text-xs text-zinc-400 my-1">or</p>
 
             <button className="w-full flex items-center justify-center gap-2 text-zinc-300 p-2 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 hover:ring-1 focus:ring-1 ring-gray-900">
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
@@ -147,7 +146,7 @@ export default function Page() {
         </div>
 
         <div className="mt-2">
-            <p className="w-full text-right text-sm text-zinc-500">Dont have an account? <Link href='/signup' className="text-zinc-300 underline">Sign up</Link></p>
+            <p className="w-full text-right text-sm text-zinc-400">Dont have an account? <Link href='/register' className="text-zinc-300 underline">Sign up</Link></p>
         </div>
     </form>
     </div>

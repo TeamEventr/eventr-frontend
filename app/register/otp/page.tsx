@@ -189,7 +189,7 @@ export default function OtpVerify() {
     return (
         <Suspense fallback={<div>Loading...</div>}>
         <div className="flex h-screen w-full items-center justify-center">
-        <div className= "relative w-96 h-76 p-6 -translate-y-16 flex flex-col justify-center rounded-lg bg-black bg-opacity-50 border-2 border-zinc-500/20 border-opacity-10">
+        <div className= "relative w-96 p-6 -translate-y-16 flex flex-col justify-center rounded-lg bg-zinc-950 bg-opacity-50 border-2 border-zinc-500/20 border-opacity-10">
             <div className="w-full relative text-2xl">
                 <p>Verify your Email</p>
             </div>

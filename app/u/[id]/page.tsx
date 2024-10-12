@@ -66,7 +66,6 @@ export default function Page() {
                     <EventCard eventId="1"/>
                     <EventCard eventId="1"/>
                 </div>
-
             </div>
         </div>
         </QueryClientProvider>
