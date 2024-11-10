@@ -9,8 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "eventr-gray": "#1A1A1A",
-        "eventr-main": "#7C00FE",
+        "eventr-gray": "#121212",
+        "eventr-main": "#7C00FE", // Purple
       },
       fontFamily: {
         gothic: ["League Gothic", "sans-serif"],

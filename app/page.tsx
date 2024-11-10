@@ -22,7 +22,7 @@ export default function Home() {
         <h1 className='text-4xl md:text-5xl lg:text-8xl w-4/5 md:w-2/3 lg:w-2/3'>
           Your Trusted Ticketing Partner
         </h1>
-        <Link href={'/signup?host=true'} className='px-6 w-max py-3 text-lg font-bold text-black rounded-full bg-white border border-gray-600'>Become a Host <FontAwesomeIcon icon={faUpRightFromSquare}/></Link>
+        <Link href={'/register?host=true'} className='px-6 w-max py-3 text-lg font-bold text-black rounded-full bg-white border border-gray-600'>Become a Host <FontAwesomeIcon icon={faUpRightFromSquare}/></Link>
         <h2 className='text-xl md:text-3xl lg:text-4xl'>We are coming soon!</h2>
 
       </div>

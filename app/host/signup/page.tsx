@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-import { API_ENDPOINTS } from "@/server/constraints";
+import { API_ENDPOINTS } from "@/server/endpoints";
 
 interface FormData{
     userName: string;

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { EventData, ArtistData } from "@/app/_components/dummydata";
+import { ArtistData, EventData } from "@/app/_components/dummydata";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar, faClock } from "@fortawesome/free-regular-svg-icons";
 import { faLocationDot, faUsers, faWarning } from "@fortawesome/free-solid-svg-icons";

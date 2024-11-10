@@ -1,5 +1,5 @@
 'use client'
-import { faChevronRight, faX } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faChevronRight, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -12,7 +12,7 @@ interface CheckUsernameResponse {
     message?: string;
 }
 
-export default function EditProfile() {
+export default function EditProfile(props: {page: boolean }) {
     const [editUsername, setEditUsername] = useState<boolean>(false);
     const [editFullName, setEditFullName] = useState<boolean>(false);
     const [editPhoneNumber, setEditPhoneNumber] = useState<boolean>(false);
@@ -106,9 +106,14 @@ export default function EditProfile() {
     return (
         <div className="absolute left-1/2 top-8 z-50 -translate-x-1/2 w-full flex items-center justify-center md:p-4 ">
             <div className="relative flex flex-col gap-4 bg-zinc-950 border border-gray-700/50 w-full md:w-[560px] p-8 md:rounded-xl">
-                <div className="absolute top-4 right-4">
+                {!props.page ?
+                <div className="absolute top-6 right-6">
                     <Link href={'/myprofile'}><FontAwesomeIcon icon={faX}/></Link>
                 </div>
+                :
+                <div className="absolute top-6 left-6">
+                    <Link href={'/myprofile'}><FontAwesomeIcon icon={faArrowLeft}/></Link>
+                </div>}
                 <div className="w-full flex flex-col items-center">
                     <div className="relative h-36 w-36 rounded-full">
                         <Image alt="profile" className="object-cover rounded-full" fill src="https://images.unsplash.com/photo-1654900168832-a59290b01d77?q=80&w=1587&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
