@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "eventr-gray": "#121212",
+        "eventr-gray": "#222222",
         "eventr-main": "#7C00FE", // Purple
       },
       fontFamily: {

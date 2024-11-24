@@ -20,9 +20,9 @@
 }
 
 
-.circular-gradient{
+/* .circular-gradient{
   background: radial-gradient(circle at top, #1a1a1a 0%, #171717 10%, #000000 30%);
-}
+} */
 
 .truncate-text{
   overflow: hidden;
