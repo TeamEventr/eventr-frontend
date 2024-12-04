@@ -66,7 +66,7 @@ export default function Footer(){
                             <button
                                 type="submit"
                                 disabled={subscribeStatus === 'loading'}
-                                className="bg-purple-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 transition-colors"
+                                className="bg-eventr-main hover:bg-eventr-main-light text-white rounded-md px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 transition-colors"
                             >
                                 {subscribeStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
                             </button>

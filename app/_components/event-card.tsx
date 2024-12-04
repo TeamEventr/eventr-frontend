@@ -1,12 +1,7 @@
 "use client"
 import Image from "next/image";
 import { useState } from "react";
-import Link from "next/link";
-import { useQuery } from 'react-query';
-import { faShareFromSquare } from "@fortawesome/free-regular-svg-icons"; 
-import { faBookmark as faRegularBookmark } from "@fortawesome/free-regular-svg-icons";
-import { faBookmark as faSolidBookmark } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Icon from "./icon-wrapper";
 interface EventId {
    eventId: string;
 }
@@ -41,36 +36,15 @@ const fetchEventDetails = async (): Promise<EventCardDetails> => {
 
 export default function EventCard({eventId}: EventId) {
     const [isSaved, setIsSaved] = useState<boolean>(false);
-    const { data: eventDetails, status } = useQuery<EventCardDetails>('eventDetails', fetchEventDetails);
-
-    if (status === 'loading') {
-        return <div className="flex items-center justify-center flex-shrink-0 snap-start w-40 h-52 md:w-48 md:h-56 lg:w-56 lg:h-[308px] rounded-lg lg:border border-gray-500/20 lg:hover:border-gray-500/80 duration-200">
-                    <div className="dot-spinner opacity-40">
-                        <div className="dot-spinner__dot"></div>
-                        <div className="dot-spinner__dot"></div>
-                        <div className="dot-spinner__dot"></div>
-                        <div className="dot-spinner__dot"></div>
-                        <div className="dot-spinner__dot"></div>
-                        <div className="dot-spinner__dot"></div>
-                        <div className="dot-spinner__dot"></div>
-                        <div className="dot-spinner__dot"></div>
-                    </div>
-                </div>
-    }   
-
-    if (status === 'error') {
-        return null;
-    }
+    const [eventDetails, setEventDetails] = useState<EventCardDetails | null>(null);
     //Make an API call to check and updated saved by user status.
     if (eventDetails?.eventStatus === "live") {
         return(
             <div className="relative snap-start w-44 h-56 md:w-48 md:h-56 lg:w-56 lg:h-[316px] rounded-lg border p-0.5 lg:p-0 border-gray-700/50 lg:hover:border-gray-500/80 duration-200">
                 <div className="absolute z-50 top-0 right-0 flex flex-col items-center w-fit h-fit gap-1.5 px-1 py-1.5 bg-gray-700 bg-opacity-20 hover:bg-opacity-60 duration-300 rounded-bl-md lg:rounded-bl-lg rounded-tr-sm lg:rounded-tr-lg">
                     <button onClick={() => setIsSaved(!isSaved)} className="text-md ">
-                        {isSaved ? <FontAwesomeIcon icon={faSolidBookmark} className="relative text-white hover:opacity-100 duration-200 filter"/>
-                        : <FontAwesomeIcon icon={faRegularBookmark} className="relative text-white opacity-60 hover:opacity-100 duration-200 filter"/>}
+                        <Icon icon='bookmark' fill={isSaved ? 1 : 0} />
                     </button>
-                    <button className="hidden lg:block text-md "><FontAwesomeIcon icon={faShareFromSquare} className="relative text-white -right-0.5 opacity-60 hover:opacity-100 duration-200 filter"/></button>
                 </div>
                 <div className="relative w-full aspect-1 rounded-t-lg">
                     <Image fill priority className="rounded-md lg:rounded-b-none lg:rounded-t-lg object-cover" alt={eventDetails.eventName} src={eventDetails.eventThumbnail}/>

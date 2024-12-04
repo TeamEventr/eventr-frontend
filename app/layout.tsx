@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 import NavBar from "./_components/nav-bar";
 import Footer from "./_components/footer";
-import '@fortawesome/fontawesome-svg-core/styles.css'; // Import FontAwesome styles
-import { config } from '@fortawesome/fontawesome-svg-core';
+import "@fortawesome/fontawesome-svg-core/styles.css"; // Import FontAwesome styles
+import { config } from "@fortawesome/fontawesome-svg-core";
 import { Suspense } from "react";
 import Loader from "./_components/loading";
-config.autoAddCss = false; 
+import Provider from "./providers";
+config.autoAddCss = false;
 
 export const metadata: Metadata = {
   title: "Eventr",
@@ -18,16 +19,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
   return (
     <html lang="en" className="bg-black">
-      
       <body className="relative bg-black circular-gradient text-white">
-        <NavBar/>
-        <Suspense fallback={<div><Loader/></div>}>
-        {children}
-        </Suspense>
-        <Footer/>
+        <Provider>
+          <Suspense
+            fallback={
+              <div>
+                <Loader />
+              </div>
+            }
+          >
+            {children}
+          </Suspense>
+        </Provider>
       </body>
     </html>
   );

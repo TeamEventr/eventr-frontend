@@ -1,9 +1,5 @@
 "use client";
-import {
-  ticketSales,
-  ticketClasses,
-} from "@/app/_components/dashboard-dummy-data";
-import { PureComponent, SetStateAction } from "react";
+import { ticketSales, ticketClasses } from "@/app/_components/dashboard-dummy-data";
 import Icon from "@/app/_components/icon-wrapper";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,7 +21,7 @@ import { useState, useCallback } from "react";
 
 function DashboardNav() {
   return (
-    <nav className="w-screen bg-eventr-gray flex px-4 py-2 border-b-2 border-zinc-700">
+    <nav className="w-screen bg-eventr-gray-750 flex px-4 py-2 border-b-2 border-zinc-700">
       <div className="flex gap-4 items-center w-44">
         <Icon icon="menu" size="32px" />
         <Link href={"/"} className="font-gothic text-3xl tracking-widest mr-2">
@@ -43,13 +39,13 @@ function DashboardNav() {
         >
           <Icon icon="add" /> Create
         </Link>
-        <div className="flex items-center gap-1">
+        <Link href={`/myprofile`} className="flex items-center gap-1">
           <Icon icon="account_circle" size="32px" />
           <div className="flex flex-col text-xs translate-y-0.5">
             <p className="font-bold">Full Name</p>
             <p className="-translate-y-1 font-thin">Company Name</p>
           </div>
-        </div>
+        </Link>
       </div>
     </nav>
   );
@@ -57,13 +53,8 @@ function DashboardNav() {
 
 function DashboardSidebar({ tab }: { tab: string }) {
   return (
-    <section className="bg-eventr-gray flex flex-col gap-2.5 w-64 flex-shrink-0 p-4 border-r-2 min-h-screen border-zinc-700">
-      <Link
-        className={`flex items-center px-2 py-1 gap-2 rounded-md duration-200 ${
-          tab === "dashboard" && "bg-eventr-main font-bold py-3"
-        }`}
-        href={"?tab=dashboard"}
-      >
+    <section className="bg-eventr-gray-750 flex flex-col gap-2.5 w-48 flex-shrink-0 p-4 border-r-2 min-h-screen border-zinc-700">
+      <Link href={"?tab=dashboard"} className={`flex items-center px-2 py-1 gap-2 rounded-md duration-200 ${tab === "dashboard" && "bg-eventr-main font-bold py-3"}`}>
         <Icon icon="grid_view" fill={tab === "dashboard" ? 1 : 0}/>
         <p>Dashboard</p>
       </Link>
