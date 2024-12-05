@@ -13,9 +13,9 @@ export type LogInResponse = {
 
 
 export type EventListHomeResponse = {
-    id: number;
-    name: string;
-    date: string;
-    location: string;
-    thumbnail: string;
+    id: string;
+    title: string;
+    startTime: string;
+    venue: string;
+    thumbnailURL: string;
 }

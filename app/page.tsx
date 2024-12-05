@@ -3,12 +3,15 @@ import Icon from "./_components/icon-wrapper";
 import { useRef } from "react";
 import EventCard from "./_components/event-card-wrapper";
 import Carousel from "./_components/carousel-wrapper";
+import { getEventsListHome } from "@/api/hooks";
 
 type ScrollDirection = "left" | "right";
 
 
 
 function Latest() {
+  const { data: events, isLoading, error } = getEventsListHome();
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   //Make smooth scroll animation
@@ -22,9 +25,8 @@ function Latest() {
     }
   };
 
-  //Replace with the event data from the API
-  const items = [1, 2, 3, 4, 5, 6, 7, 8];
   const city = "Bengaluru";
+
   type ScrollButtonProps = {
     direction: ScrollDirection;
     onClick: (direction: ScrollDirection) => void;
@@ -57,16 +59,26 @@ function Latest() {
         </div>
       </header>
 
-      {/* Event Cards Container */}
+      {isLoading &&
+      <div className="flex gap-2 p-3 lg:gap-6 hide-scrollbar overflow-x-scroll snap-x snap-mandatory scroll-smooth">
+        {[...Array(5)].map((_, index) => (
+          <EventCard key={index} loading eventDetails={{ id: '', title: '', startTime: '', venue: '', thumbnailURL: '' }}/>
+        ))}
+      </div>
+      }
+      {error && <p className="text-red-500">Failed to load events</p>}
+
+      {events &&
       <div
         ref={scrollRef}
         className="flex gap-2 p-3 lg:gap-6 hide-scrollbar overflow-x-scroll snap-x snap-mandatory scroll-smooth"
         aria-label={`Latest events in ${city}`}
       >
-        {items.map((item) => (
-          <EventCard key={item} />
-        ))}``
+        {events.map((event) => (
+          <EventCard key={event.id} eventDetails={event}/>
+        ))}
       </div>
+      }
     </section>
   );
 }
