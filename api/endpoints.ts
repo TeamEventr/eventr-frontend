@@ -12,4 +12,5 @@ export const API_ENDPOINTS = {
     USER_LOGOUT: `${API_SERVER}/user/logout`,
 
     USERNAME_UPDATE: `${API_SERVER}/user/update/username`,
+    GET_EVENTS_LIST_HOME: ''
 };

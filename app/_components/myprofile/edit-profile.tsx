@@ -1,11 +1,10 @@
 'use client'
-import { faArrowLeft, faChevronRight, faX } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import ky, { HTTPError } from "ky";
-import { API_ENDPOINTS } from "@/server/endpoints";
+import { API_ENDPOINTS } from "@/api/endpoints";
 import Link from "next/link";
+import Icon from "../icon-wrapper";
 
 interface CheckUsernameResponse {
     available: boolean;
@@ -108,11 +107,11 @@ export default function EditProfile(props: {page: boolean }) {
             <div className="relative flex flex-col gap-4 bg-zinc-950 border border-gray-700/50 w-full md:w-[560px] p-8 md:rounded-xl">
                 {!props.page ?
                 <div className="absolute top-6 right-6">
-                    <Link href={'/myprofile'}><FontAwesomeIcon icon={faX}/></Link>
+                    <Link href={'/profile'}><Icon icon='close'/></Link>
                 </div>
                 :
                 <div className="absolute top-6 left-6">
-                    <Link href={'/myprofile'}><FontAwesomeIcon icon={faArrowLeft}/></Link>
+                    <Link href={'/myprofile'}><Icon icon='arrow_back'/></Link>
                 </div>}
                 <div className="w-full flex flex-col items-center">
                     <div className="relative h-36 w-36 rounded-full">
@@ -124,10 +123,10 @@ export default function EditProfile(props: {page: boolean }) {
                 <h1 className="font-bold text-xl">Edit Profile</h1>
                 {(!editUsername && !editFullName && !editPhoneNumber && !editProfilePicture) && 
                 <div className="flex flex-col gap-2">
-                    <button onClick={() => setEditUsername(true)} className="py-3 px-4 bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 rounded-md flex justify-between items-center"><p>Username</p><FontAwesomeIcon icon={faChevronRight}/></button>
-                    <button onClick={() => setEditFullName(true)} className="py-3 px-4 bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 rounded-md flex justify-between items-center"><p>Full Name</p><FontAwesomeIcon icon={faChevronRight}/></button>
-                    <button onClick={() => setEditPhoneNumber(true)} className="py-3 px-4 bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 rounded-md flex justify-between items-center"><p>Phone Number</p><FontAwesomeIcon icon={faChevronRight}/></button>
-                    <button onClick={() => setEditProfilePicture(true)} className="py-3 px-4 bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 rounded-md flex justify-between items-center"><p>Profile Picture</p><FontAwesomeIcon icon={faChevronRight}/></button>
+                    <button onClick={() => setEditUsername(true)} className="py-3 px-4 bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 rounded-md flex justify-between items-center"><p>Username</p><Icon icon="chevron_right"/></button>
+                    <button onClick={() => setEditFullName(true)} className="py-3 px-4 bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 rounded-md flex justify-between items-center"><p>Full Name</p><Icon icon="chevron_right"/></button>
+                    <button onClick={() => setEditPhoneNumber(true)} className="py-3 px-4 bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 rounded-md flex justify-between items-center"><p>Phone Number</p><Icon icon="chevron_right"/></button>
+                    <button onClick={() => setEditProfilePicture(true)} className="py-3 px-4 bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 rounded-md flex justify-between items-center"><p>Profile Picture</p><Icon icon="chevron_right"/></button>
                 </div>
                 }
                 {editUsername &&

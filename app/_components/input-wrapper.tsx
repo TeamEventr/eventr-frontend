@@ -61,7 +61,7 @@ const Input: React.FC<InputWrapperProps> = ({
 }) => {
   return (
     <div className={`relative flex flex-col ${grow? 'flex-grow' : ''}`}>
-      {label && <label htmlFor={name} className="text-lg text-eventr-gray-50">{label}</label>}
+      {label && <label htmlFor={name} className="text-lg text-eventr-gray-100">{label}</label>}
       <input
         id={name}
         type={type}
@@ -88,7 +88,7 @@ const Textarea: React.FC<TextareaWrapperProps> = ({
 }) => {
     return (
         <div className="relative flex flex-col">
-            {label && <label htmlFor={name} className="text-lg text-eventr-gray-50">{label}</label>}
+            {label && <label htmlFor={name} className="text-lg text-eventr-gray-100">{label}</label>}
             <textarea
                 id={name}
                 name={name}
@@ -114,7 +114,7 @@ const Select: React.FC<SelectWrapperProps> = ({
 }) => {
     return (
         <div className="relative flex flex-col">
-            {label && <label htmlFor={name} className="text-lg text-eventr-gray-50">{label}</label>}
+            {label && <label htmlFor={name} className="text-lg text-eventr-gray-100">{label}</label>}
             <select
                 id={name}
                 name={name}
@@ -146,7 +146,7 @@ const Password: React.FC<PasswordWrapperProps> = ({
 
     return (
         <div className="relative flex flex-col">
-            {label && <label htmlFor={name} className="text-lg text-eventr-gray-50">{label}</label>}
+            {label && <label htmlFor={name} className="text-lg text-eventr-gray-100">{label}</label>}
             <input
                 type={isPassVisible ? "text" : "password"}
                 id={name}
@@ -159,7 +159,7 @@ const Password: React.FC<PasswordWrapperProps> = ({
             <button
                 type="button"
                 onClick={() => setPassVisible(!isPassVisible)}
-                className="absolute right-2 top-2 flex items-center text-eventr-gray-200"
+                className={`absolute right-2 ${label ? 'top-[36px]' : 'top-2'} flex items-center text-eventr-gray-200`}
             >
                 {isPassVisible ? <Icon icon='visibility' size="20px"/> : <Icon icon='visibility_off' size="20px"/>}
             </button>

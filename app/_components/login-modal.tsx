@@ -3,12 +3,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { Input, Password } from "../_components/input-wrapper";
 import Icon from "./icon-wrapper";
-import bcrypt from "bcryptjs";
 import { useLogin } from "@/api/hooks";
 import { Google } from "./logo-wrapper";
 import { useRecoilState } from "recoil";
 import { showLoginModalState } from "@/api/atoms";
 import { AnimatePresence, motion } from "motion/react"
+import { createHash } from "crypto";
 
 export default function Login() {
   const [isOpen, setIsOpen] = useRecoilState(showLoginModalState);
@@ -42,10 +42,10 @@ export default function Login() {
         return;
       }
     }
-    const encryptedPassword = await bcrypt.hash(password, 10);
+    const encryptedPassword = createHash("sha256").update(password).digest("hex");
     login({
-      userMail: email,
-      passWord: encryptedPassword,
+      email: email,
+      password: encryptedPassword,
     });
   };
   
@@ -133,3 +133,4 @@ export default function Login() {
     
   );
 }
+

@@ -1,16 +1,29 @@
+export type SignUpDetails = {
+    email: string;
+    password: string;
+    username: string;
+};
+
+export type SignUpResponse = {
+    email: string;
+    expiryAt: string;
+    message: string;
+    tempToken: string;
+    username: string;
+}
+
 export type LogInDetails = {
-    userMail: string;
-    passWord: string;
+    email: string;
+    password: string;
 };
 
 export type LogInResponse = {
-    token: string;
     email: string;
-    username: string;
     firstName: string;
     profilePictureURL: string;
+    token: string;
+    username: string;
 };
-
 
 export type EventListHomeResponse = {
     id: string;

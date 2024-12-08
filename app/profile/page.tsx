@@ -2,24 +2,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import EditProfile from "../_components/myprofile/edit-profile";
-import EventCard from "../_components/event-card";
-import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import ProfileSettings from "../_components/myprofile/profile-settings";
 import FollowerFollowing from "../_components/myprofile/follower-following";
+import EventCard from "../_components/event-card-wrapper";
+
 export default function Page() {
+
     const params = useSearchParams();
     const view = params.get('view')    
     const tab = params.get('tab')
-    const tickets = [1, 2]
 
     return (
         
-        <div className="relative flex flex-col md:flex-row p-4">
+        <div className="relative flex flex-col justify-center md:flex-row p-4">
             {view === 'edit' ? <EditProfile page={false} /> : null}
-            {view === 'settings' ? <ProfileSettings/> : null}
             {(tab === 'followers' || tab === 'following') ? <FollowerFollowing tab={tab || ''}/> : null}
-            <div className="relative flex-grow lg:min-w-[600px] md:w-[400px] lg:w-full md:h-screen">
+            <div className="relative lg:min-w-[600px] md:w-[400px] lg:w-1/2 md:h-screen">
                 <div className="flex flex-col">
                     <div className=" flex my-4 items-start">
                         <div className="flex gap-4 items-center">
@@ -31,11 +29,11 @@ export default function Page() {
                                 <p className="-mt-1 text-gray-300">@janedoe11</p>
                                 <div className="hidden lg:flex gap-4 mt-3">
                                     
-                                    <Link href={'/myprofile?tab=followers'} className="flex gap-1">
+                                    <Link href={'/profile?tab=followers'} className="flex gap-1">
                                         <p className="font-bold">334</p>
                                         <p>Followers</p>
                                     </Link>
-                                    <Link href={'/myprofile?tab=following'} className="flex gap-1">
+                                    <Link href={'/profile?tab=following'} className="flex gap-1">
                                         <p className="font-bold">1</p>
                                         <p>Following</p> 
                                     </Link>
@@ -49,11 +47,11 @@ export default function Page() {
                     </div>
                 </div>
                 <div className="mt-2 w-full flex justify-around lg:hidden">
-                    <Link href='/myprofile?tab=followers' className="flex flex-col items-center">
+                    <Link href='/profile?tab=followers' className="flex flex-col items-center">
                         <p className="text-lg">334</p>
                         <p className="text-sm">Followers</p>
                     </Link>
-                    <Link href='/myprofile?tab=following' className="flex flex-col items-center">
+                    <Link href='/profile?tab=following' className="flex flex-col items-center">
                         <p className="text-lg">1</p>
                         <p className="text-sm">Following</p>
                     </Link>
@@ -65,7 +63,7 @@ export default function Page() {
                 <div className="hidden md:flex flex-col w-full mt-4">
                     <h2 className="w-full text-xl">Events Attended</h2>
                     <div className="grid grid-cols-5 gap-4 place-items-center mx-auto">
-
+                        
                     </div>
                 </div>
             </div>
@@ -85,11 +83,11 @@ export default function Page() {
                 <div className="flex flex-col gap-2">
                     <h2 className="text-xl">Account</h2>
                     <div className="flex flex-col gap-2">
-                        <Link href='/myprofile?view=edit' className='hidden md:block p-2 border duration-200 border-gray-700/50 rounded-md text-center editTab bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 hover:bg-gray-500/50'>Edit Profile</Link>
-                        <Link href='/myprofile/edit' className='block md:hidden p-2 border duration-200 border-gray-700/50 rounded-md text-center editTab bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 hover:bg-gray-500/50'>Edit Profile</Link>
-                        <Link href='/myprofile/purchases' className="p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">My Purchases</Link>
-                        <Link href='/myprofile?view=settings' className="hidden md:block p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">Settings</Link>
-                        <Link href='/myprofile/settings' className="block md:hidden p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">Settings</Link>
+                        <Link href='/profile?view=edit' className='hidden md:block p-2 border duration-200 border-gray-700/50 rounded-md text-center editTab bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 hover:bg-gray-500/50'>Edit Profile</Link>
+                        <Link href='/profile/edit' className='block md:hidden p-2 border duration-200 border-gray-700/50 rounded-md text-center editTab bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 hover:bg-gray-500/50'>Edit Profile</Link>
+                        <Link href='/profile/purchases' className="p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">My Purchases</Link>
+                        {/* <Link href='/myprofile?view=settings' className="hidden md:block p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">Settings</Link>
+                        <Link href='/myprofile/settings' className="block md:hidden p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">Settings</Link> */}
                     </div>
                 </div>
                 <div className="flex md:hidden flex-col w-full">

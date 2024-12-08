@@ -55,4 +55,42 @@ const ArtistData = {
     ]
 }
 
-export { EventData, ArtistData };
+const EventListData = [
+    {
+      id: "1",
+      title: "Music Fiesta",
+      startTime: "2024-12-15T18:30:00Z",
+      venue: "Downtown Arena",
+      thumbnailURL: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      id: "2",
+      title: "Tech Conference",
+      startTime: "2024-12-20T09:00:00Z",
+      venue: "Tech Park Auditorium",
+      thumbnailURL: "https://images.unsplash.com/photo-1581091870637-6c811b1b18d5?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      id: "3",
+      title: "Art Exhibition",
+      startTime: "2024-12-22T14:00:00Z",
+      venue: "City Art Gallery",
+      thumbnailURL: "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      id: "4",
+      title: "Food Carnival",
+      startTime: "2024-12-25T16:00:00Z",
+      venue: "Central Park",
+      thumbnailURL: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      id: "5",
+      title: "Stand-Up Comedy",
+      startTime: "2024-12-27T20:00:00Z",
+      venue: "Comedy Club",
+      thumbnailURL: "https://images.unsplash.com/photo-1531251445707-1f000e1e87d0?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+  ];
+
+export { EventData, ArtistData, EventListData };

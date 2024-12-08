@@ -1,8 +1,27 @@
 import { API_ENDPOINTS } from "./endpoints";
 import ky, { HTTPError, TimeoutError} from "ky";
-import { LogInDetails, LogInResponse, EventListHomeResponse } from "./types";
+import { LogInDetails, LogInResponse, EventListHomeResponse, SignUpDetails, SignUpResponse } from "./types";
 
 export const client = {
+
+    async signup(userSignUp: SignUpDetails) {
+        try {
+            const response = await ky.post(API_ENDPOINTS.USER_SIGNUP, {
+                json: userSignUp,
+            }).json<SignUpResponse>();
+            return response;
+        }
+        catch (error) {
+            if (error instanceof HTTPError) {
+                const errorResponse = await error.response.json();
+                throw new Error(errorResponse.message || 'Signup failed');
+            } else if (error instanceof TimeoutError) {
+                throw new Error('Request timed out. Please try again after some time.');
+            } else {
+                throw new Error('An unknown error occurred. Please try again.');
+            }
+        }
+    },
 
     async login(userLogIn: LogInDetails) {
         try {
@@ -21,6 +40,7 @@ export const client = {
             }
         }
     },
+
 
     async getEventListHome() {
         try {

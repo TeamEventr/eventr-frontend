@@ -8,13 +8,5 @@ export const showLoginModalState = atom({
 
 export const authState = atom({
     key: 'authState',
-    default: {
-        auth: false,
-        user: {
-            username: '',
-            firstName: '',
-            email: '',
-            profilePictureURL: '',
-        },
-    },
+    default: false,
 });
