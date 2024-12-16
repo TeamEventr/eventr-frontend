@@ -14,6 +14,7 @@ interface InputWrapperProps {
   width: string;
   grow?: boolean;
   className?: string;
+  responsive?: boolean;
 }
 
 interface TextareaWrapperProps {
@@ -44,6 +45,7 @@ interface SelectWrapperProps {
     onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     options: string[];
     width: string;
+    responsive? : boolean;
     className?: string;
 }
 
@@ -57,11 +59,12 @@ const Input: React.FC<InputWrapperProps> = ({
   placeholder,
   width,
   grow,
+  responsive,
   className = "",
 }) => {
   return (
     <div className={`relative flex flex-col ${grow? 'flex-grow' : ''}`}>
-      {label && <label htmlFor={name} className="text-lg text-eventr-gray-100">{label}</label>}
+      {label && <label htmlFor={name} className={`${responsive? 'text-md md:text-lg' : 'text-lg'}  text-eventr-gray-100`}>{label}</label>}
       <input
         id={name}
         type={type}
@@ -69,7 +72,7 @@ const Input: React.FC<InputWrapperProps> = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className={`px-2.5 ${(type==='date' || type==='time') ? 'py-[5px]' : 'py-1.5'} ${width} bg-eventr-gray-800 rounded-md border border-eventr-gray-700 outline-none ${className}`}
+        className={`${responsive ? 'px-1.5 md:px-2.5' :'px-2.5'} ${(type==='date' || type==='time') ? 'py-[5px] text-sm h-10 md:text-base' : 'py-[7px]'} ${width} bg-eventr-gray-800 rounded-md border border-eventr-gray-700 outline-none ${className}`}
       />
     {subtext && <p className="text-sm text-zinc-400">{subtext}</p>}
     </div>
@@ -95,13 +98,11 @@ const Textarea: React.FC<TextareaWrapperProps> = ({
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className={`px-2.5 py-1.5 ${width} ${height} resize-none bg-eventr-gray-800 rounded-md border border-eventr-gray-700 outline-none ${className}`}
+                className={`py-1.5 ${width} ${height} resize-none bg-eventr-gray-800 rounded-md border border-eventr-gray-700 outline-none ${className}`}
             />
         </div>
     );
 };
-
-
 
 const Select: React.FC<SelectWrapperProps> = ({
     label,
@@ -110,17 +111,18 @@ const Select: React.FC<SelectWrapperProps> = ({
     onChange,
     options,
     width,
+    responsive,
     className = "",
 }) => {
     return (
         <div className="relative flex flex-col">
-            {label && <label htmlFor={name} className="text-lg text-eventr-gray-100">{label}</label>}
+            {label && <label htmlFor={name} className={`${responsive? 'text-md md:text-lg' : 'text-lg'} text-eventr-gray-100`}>{label}</label>}
             <select
                 id={name}
                 name={name}
                 value={value}
                 onChange={onChange}
-                className={`px-2.5 py-2 ${width}  bg-eventr-gray-800 rounded-md border border-eventr-gray-700 outline-none ${className}`}
+                className={`${responsive ? 'px-1.5 md:px-2.5' :'px-2.5'} py-2 ${width}  bg-eventr-gray-800 rounded-md border border-eventr-gray-700 outline-none ${className}`}
             >
                 {options.map((option) => (
                     <option key={option} value={option}>

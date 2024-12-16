@@ -48,6 +48,7 @@ export default function NavBar() {
     const [ isOpen, setIsOpen ] = useRecoilState(showLoginModalState);
     
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    
         const menuRef = useRef<HTMLDivElement>(null);
         const profileButtonRef = useRef<HTMLButtonElement>(null);
         const handleClickOutside = (event: MouseEvent) => {
@@ -104,10 +105,10 @@ export default function NavBar() {
                         exit="exit"
                         variants={menuVariants}
                         ref={menuRef} className="absolute right-3 lg:right-6 mt-1 w-32 p-2 flex flex-col gap-1.5 bg-eventr-gray-900 border-2 border-eventr-gray-800 rounded-md shadow-lg z-40">
-                            <Link href="/profile" className="block px-2 py-1.5 rounded-md duration-300 hover:bg-eventr-gray-700">Profile</Link>
-                            <Link href="/tickets" className="block px-2 py-1.5 rounded-md duration-300 hover:bg-eventr-gray-700">My Tickets</Link>
-                            <Link href="/bookmarks" className="block px-2 py-1.5 rounded-md duration-300 hover:bg-eventr-gray-700">Bookmarks</Link>
-                            <button className="block w-full text-left px-2 py-1.5 rounded-md duration-300 hover:bg-eventr-gray-700 text-red-600">Logout</button>
+                            <Link href="/profile" onClick={() => setIsMenuOpen(false)} className="block px-2 py-1.5 rounded-md duration-300 hover:bg-eventr-gray-700">Profile</Link>
+                            <Link href="/tickets" onClick={() => setIsMenuOpen(false)} className="block px-2 py-1.5 rounded-md duration-300 hover:bg-eventr-gray-700">My Tickets</Link>
+                            <Link href="/bookmarks" onClick={() => setIsMenuOpen(false)} className="block px-2 py-1.5 rounded-md duration-300 hover:bg-eventr-gray-700">Bookmarks</Link>
+                            <button onClick={() => setIsMenuOpen(false)} className="block w-full text-left px-2 py-1.5 rounded-md duration-300 hover:bg-eventr-gray-700 text-red-600">Logout</button>
                         </motion.div>
                     )}
                 </AnimatePresence>

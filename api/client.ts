@@ -1,9 +1,10 @@
 import { API_ENDPOINTS } from "./endpoints";
 import ky, { HTTPError, TimeoutError} from "ky";
-import { LogInDetails, LogInResponse, EventListHomeResponse, SignUpDetails, SignUpResponse } from "./types";
+import { LogInDetails, LogInResponse, EventListHomeResponse, SignUpDetails, TopTwoTicketsResponse, SignUpResponse } from "./types";
 
 export const client = {
-
+    
+    //Auth 
     async signup(userSignUp: SignUpDetails) {
         try {
             const response = await ky.post(API_ENDPOINTS.USER_SIGNUP, {
@@ -22,7 +23,6 @@ export const client = {
             }
         }
     },
-
     async login(userLogIn: LogInDetails) {
         try {
             const response = await ky.post(API_ENDPOINTS.USER_LOGIN, {
@@ -41,7 +41,7 @@ export const client = {
         }
     },
 
-
+    //Home
     async getEventListHome() {
         try {
             const response = await ky.get(API_ENDPOINTS.GET_EVENTS_LIST_HOME).json<EventListHomeResponse[]>();
@@ -56,7 +56,23 @@ export const client = {
                 throw new Error('An unknown error occurred. Please try again.');
             }
         }
+    },
+    
+    //Profile 
+    async getTopTwoTickets() {
+        try {
+            const response = await ky.get(API_ENDPOINTS.GET_TOP_TWO_TICKETS).json<TopTwoTicketsResponse[]>();
+            return response;
+        } catch (error) {
+            if (error instanceof HTTPError) {
+                const errorResponse = await error.response.json();
+                throw new Error(errorResponse.message || 'Failed to fetch tickets');
+            } else if (error instanceof TimeoutError) {
+                throw new Error('Request timed out. Please try again after some time.');
+            } else {
+                throw new Error('An unknown error occurred. Please try again.');
+            }
+        }
     }
-    // Add more methods here as needed
 }
 

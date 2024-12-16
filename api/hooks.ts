@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { client } from "./client";
 import secureLocalStorage from "react-secure-storage";
-import { LogInDetails, LogInResponse, EventListHomeResponse } from "./types";
+import { LogInDetails, LogInResponse, EventListHomeResponse, TopTwoTicketsResponse } from "./types";
+import { use } from "react";
 
 export const queryClient = new QueryClient();
 
@@ -28,3 +29,9 @@ export const getEventsListHome = () =>
     queryKey: ['eventlist', 'home'],
     queryFn: client.getEventListHome,
   });
+
+export const getTopTwoTickets = () =>
+  useQuery<TopTwoTicketsResponse[]>({
+    queryKey: ['profile', 'tickets'],
+    queryFn: client.getTopTwoTickets,
+  })

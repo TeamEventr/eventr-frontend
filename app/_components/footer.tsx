@@ -22,7 +22,7 @@ export default function Footer(){
         }, 1000)
     }
     return(
-        <footer className="mt-8 md:mt-16 bg-black text-white p-8 relative z-40 w-full">
+        <footer className="mt-8 md:mt-16 bg-black text-white p-8 relative w-full">
             <div className="container mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
                     <div className="flex flex-col">

@@ -5,13 +5,16 @@ import EditProfile from "../_components/myprofile/edit-profile";
 import { useSearchParams } from "next/navigation";
 import FollowerFollowing from "../_components/myprofile/follower-following";
 import EventCard from "../_components/event-card-wrapper";
+import { getTopTwoTickets } from "@/api/hooks";
+import Loader from "../_components/loading";
+import { EventrCrab } from "../_components/logo-wrapper";
 
 export default function Page() {
 
     const params = useSearchParams();
     const view = params.get('view')    
     const tab = params.get('tab')
-
+    const { data: topTwoTickets, isLoading, error } = getTopTwoTickets();
     return (
         
         <div className="relative flex flex-col justify-center md:flex-row p-4">
@@ -27,7 +30,8 @@ export default function Page() {
                             <div className="flex flex-col">
                                 <p className="text-xl">Jane</p>
                                 <p className="-mt-1 text-gray-300">@janedoe11</p>
-                                <div className="hidden lg:flex gap-4 mt-3">
+                                {/* Followers following and all in next launch */}
+                                {/* <div className="hidden lg:flex gap-4 mt-3">
                                     
                                     <Link href={'/profile?tab=followers'} className="flex gap-1">
                                         <p className="font-bold">334</p>
@@ -41,12 +45,13 @@ export default function Page() {
                                         <p className="font-bold">4</p>
                                         <p>Events Attended</p>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="mt-2 w-full flex justify-around lg:hidden">
+                {/* Followers following in next launch */}
+                {/* <div className="mt-2 w-full flex justify-around lg:hidden">
                     <Link href='/profile?tab=followers' className="flex flex-col items-center">
                         <p className="text-lg">334</p>
                         <p className="text-sm">Followers</p>
@@ -59,7 +64,7 @@ export default function Page() {
                         <p className="text-lg">4</p>
                         <p className="text-sm">Attended</p>
                     </div>
-                </div>
+                </div> */}
                 <div className="hidden md:flex flex-col w-full mt-4">
                     <h2 className="w-full text-xl">Events Attended</h2>
                     <div className="grid grid-cols-5 gap-4 place-items-center mx-auto">
@@ -71,24 +76,34 @@ export default function Page() {
                 <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-baseline">
                         <h2 className="text-xl">My Tickets</h2>
-                        <Link className="text-xs text-gray-400 underline" href="/mytickets">View All</Link>
+                        <Link className="text-xs text-gray-400 underline" href="/tickets">View All</Link>
                     </div>
-                    <div className="flex gap-4">
-                        <div className="relative flex flex-col rounded-md bg-white w-36 h-48">
+                    {isLoading && <div className="h-48 flex items-center justify-center">
+                            <Loader/>
                         </div>
-                        <div className="relative flex flex-col rounded-md bg-white w-36 h-48">
+
+                    }
+                    {error && <div className="h-48 flex flex-col items-center justify-center">
+                        <EventrCrab/>
+                        <p className="font-bold -mt-4 text-eventr-gray-500 text-lg">Failed to load tickets :/</p>
+                    </div>
+
+                    }
+                    {topTwoTickets && <div className="flex gap-4">
+                        <div className="relative flex flex-col rounded-md bg-white w-36 h-48 p-1">
+                            <div className="relative w-[136px] h-[136px]">
+                                <Image src='/defaultQR.png' alt="QR Code" fill className="rounded-md object-cover" />
+                            </div>
+                            <p className="text-black h-10 px-1 py-0.5 font-bold text-lg line-clamp-2 leading-none">Very long event name that is in QR evenlonger</p>
                         </div>
-                    </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                    <h2 className="text-xl">Account</h2>
-                    <div className="flex flex-col gap-2">
-                        <Link href='/profile?view=edit' className='hidden md:block p-2 border duration-200 border-gray-700/50 rounded-md text-center editTab bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 hover:bg-gray-500/50'>Edit Profile</Link>
-                        <Link href='/profile/edit' className='block md:hidden p-2 border duration-200 border-gray-700/50 rounded-md text-center editTab bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 hover:bg-gray-500/50'>Edit Profile</Link>
-                        <Link href='/profile/purchases' className="p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">My Purchases</Link>
-                        {/* <Link href='/myprofile?view=settings' className="hidden md:block p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">Settings</Link>
-                        <Link href='/myprofile/settings' className="block md:hidden p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">Settings</Link> */}
-                    </div>
+                        <div className="relative flex flex-col rounded-md bg-white w-36 h-48 p-1">
+                            <div className="relative w-[136px] h-[136px]">
+                                <Image src='/defaultQR.png' alt="QR Code" fill className="rounded-md object-cover" />
+                            </div>
+                            <p className="text-black h-10 px-1 py-0.5 font-bold text-lg line-clamp-2 leading-none">Very long event name that is in QR evenlonger</p>
+                        </div>
+                    </div>}
+
                 </div>
                 <div className="flex md:hidden flex-col w-full">
                     <h2 className="w-full text-xl">Events Attended</h2>
@@ -96,6 +111,20 @@ export default function Page() {
 
                     </div>
                 </div>
+                <div className="flex flex-col gap-2">
+                    <h2 className="text-xl">Account</h2>
+                    <div className="flex flex-col gap-2">
+                        <Link href='/profile?view=edit' className='hidden md:block p-2 border duration-200 border-gray-700/50 rounded-md text-center editTab bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 hover:bg-gray-500/50'>
+                        Edit Profile</Link>
+                        <Link href='/profile/edit' className='block md:hidden p-2 border duration-200 border-gray-700/50 rounded-md text-center editTab bg-gradient-to-tr from-zinc-800/50 to-slate-800/50 hover:bg-gray-500/50'>
+                        Edit Profile</Link>
+                        <Link href='/profile/purchases' className="p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">
+                        My Purchases</Link>
+                        {/* <Link href='/myprofile?view=settings' className="hidden md:block p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">Settings</Link>
+                        <Link href='/myprofile/settings' className="block md:hidden p-2 border hover:bg-gray-500/50 duration-200 border-gray-700/50 rounded-md text-center bg-gradient-to-tr from-zinc-800/50 to-slate-800/50">Settings</Link> */}
+                    </div>
+                </div>
+                
             </div>
         </div>
     )
