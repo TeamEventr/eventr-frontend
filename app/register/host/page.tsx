@@ -1,43 +1,24 @@
 "use client"
 import { useState, useEffect, useRef } from "react";
-import ky, { HTTPError, TimeoutError } from 'ky';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faCircleNotch, faCalendar, faWarning, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { useRouter } from "next/navigation";
 import secureLocalStorage from "react-secure-storage";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 
-import { API_ENDPOINTS } from "@/server/endpoints";
-
-interface HostData{
-    username: string;
-    dob: Date | null;
-    firstName: string;
-    middleName?: string,
-    lastName: string;
-    phoneNumber: string;
-    companyName: string;
-    registered: boolean;
-    companyMail: string;
-    hostedStatus: string;
-}
-
-interface ResponseData {
-    email: string;
-    expiryAt: string;
-    message: string;
-    username: string;
-}
+import { useHostRegister } from "@/api/hooks";
+import { Auth } from "@/api/types";
+import Icon from "@/app/_components/icon-wrapper";
+import { Input } from "@/app/_components/input-wrapper";
 
 export default function SignUp() {
     const [isDatePickerOpen, setIsDatePickerOpen] = useState<boolean>(false);
-    const [formData, setFormData] = useState<HostData>({
+    const [formData, setFormData] = useState<Auth.HostRegisterRequest>({
         username: (secureLocalStorage.getItem('username') as string),
         firstName: "",
         lastName: "",
         phoneNumber: "",
         dob: null,
         companyName: "",
+        backupMail: "",
         registered: false,
         companyMail: "",
         hostedStatus: "UnderFive",
@@ -47,15 +28,16 @@ export default function SignUp() {
         month: null,
         day: null,
     });
-    const [inputErrMsg, setInputErrMsg] = useState<string | null>(null); 
-    const [signUpErrMsg, setSignUpErrMsg] = useState<string>('')
+    const [errMsg, setErrMsg] = useState<string | null>(null); 
+
     const [isSigningUp, setIsSigningUp] = useState<boolean>(false);
     const [fullName, setFullName] = useState<string>("");
     const router = useRouter();
     const nameRef = useRef<HTMLInputElement>(null);
     const datePickerRef = useRef<HTMLDivElement>(null);
 
-    //Focus on username field when component loads
+    const { mutate: hostRegister, isPending } = useHostRegister();
+
     useEffect(() => {
         if (nameRef.current) {
             nameRef.current.focus();
@@ -140,8 +122,7 @@ export default function SignUp() {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        setInputErrMsg(null);
-        setSignUpErrMsg("");
+        setErrMsg(null);
             
         //Conditions to check if inputs are correct
         const conditions = [
@@ -157,7 +138,7 @@ export default function SignUp() {
         ];
         for (const { condition, message } of conditions) {
             if (condition) {
-              setInputErrMsg(message);
+              setErrMsg(message);
               return;
             }
         }
@@ -168,127 +149,60 @@ export default function SignUp() {
         if (nameParts.length === 3) {
             updatedFormData.firstName = nameParts[0];
             updatedFormData.middleName = nameParts[1];
-            updatedFormData.lastName = nameParts[2];
+            updatedFormData.lastName = nameParts.slice(2).join(" ");
         } else if (nameParts.length === 2) {
             updatedFormData.firstName = nameParts[0];
             updatedFormData.lastName = nameParts[1];
-        } else {
-            setInputErrMsg("Full name should have First, Middle, and Last Name only.");
-            return;
         }
 
         setIsSigningUp(true);
-
-        try {
-          const response = await ky.post(API_ENDPOINTS.HOST_SIGNUP,
-            { 
-            headers: { 
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${secureLocalStorage.getItem('accessKey')}` },
-            
-            json: updatedFormData
-          }).json<ResponseData>();
-          
-          // Code after signup successful
-          //   localStorage.setItem('signupusername', formData.userName);
-          router.push("/host/otp");
-          secureLocalStorage.setItem('hostEmail', response.email);
-        //API failures
-        } catch (error) {
-          if (error instanceof HTTPError) {
-            if (error.response.status === 500) {
-              setSignUpErrMsg("Server error. Please try again later.");
+        hostRegister(updatedFormData,
+            {
+                onSuccess: () => {
+                    router.push("/host/otp");
+            },
+                onError: (error) => {
+                    setErrMsg(error.message);
             }
-            const errorData = await error.response.json();
-            switch (errorData.message) {
-              case "badRequest":
-                setSignUpErrMsg("Bad request. Please check your input.");
-                break;
-              case "emailExists":
-                setSignUpErrMsg("Email already exists. Please try another.");
-                break;
-              case "invalidCreds":
-                setSignUpErrMsg("Unauthorized. Please check your credentials.");
-                break;
-              default:
-                setSignUpErrMsg("An unexpected error occurred. Please try again.");
-            }
-          } else if (error instanceof TimeoutError) {
-            setSignUpErrMsg("Request timed out. Please try again.");
-          } else {
-            setSignUpErrMsg("An unexpected error occurred. Please try again.");
-          }
-        } finally {
-          setIsSigningUp(false);
-        }
-      };
+        })};
 
 
     return(
     <div className="relative flex h-full my-16 items-center justify-center rounded-lg">
 
-        <form onSubmit={handleSubmit} className="-translate-y-8 bg-zinc-950 border-2 border-zinc-500/20 rounded-lg w-96 h-max p-6 flex flex-col gap-2 justify-center relative">
+        <form onSubmit={handleSubmit} className="border-2 border-eventr-gray-800 bg-eventr-gray-900 rounded-lg w-96 h-max px-6 py-8 flex flex-col gap-4 justify-center relative">
 
             <div className="w-full relative text-3xl">
                 <p>Complete Your Host Profile</p>
             </div>
 
             <div className="relative h-2 mb-0.5">
-                {inputErrMsg ? <p className="text-sm text-red-600"><FontAwesomeIcon icon={faWarning}/> {inputErrMsg}</p> : null}
-                {signUpErrMsg ? <p className="text-sm text-red-600"><FontAwesomeIcon icon={faWarning}/> {signUpErrMsg}</p> : null}
+                {errMsg ? <p className="text-sm text-red-600 flex gap-1"><Icon size="15px" icon="warning"/> {errMsg}</p> : null}
             </div>
-            <div>
-                <label htmlFor="fullName" className="text-sm text-zinc-400">Full Name</label>
-                <input
-                    id="fullName"
-                    name="fullName"
-                    ref = {nameRef}
-                    type="text"
-                    value={fullName}
-                    onChange={e  => setFullName(e.target.value)}
-                    className="w-full p-1 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"
-                />
-            </div>
-            <div className="relative">
-                <label htmlFor="phoneNumber" className="text-sm text-zinc-400">Phone Number</label>
-                <input
-                    id="phoneNumber"
-                    name="phoneNumber"
-                    type="tel"
-                    inputMode="numeric"
-                    value={formData.phoneNumber}
-                    onChange={(e) => setFormData(prevData => ({ ...prevData, phoneNumber: e.target.value }))}
-                    className="w-full p-1 pl-8 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"
-                />
-                <span className="absolute left-1.5 top-1/2 text-zinc-400">+91</span>
-            </div>
+            
+            <Input name="fullname" placeholder="Full Name" type="text" width="w-full" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+            <Input type='number' name='phoneNumber' width='w-full' placeholder='Phone Number' value={formData.phoneNumber} 
+                onChange={(e) => setFormData(prevData => ({ ...prevData, phoneNumber: e.target.value }))} />
+
 
             <div className="relative">
-                <label htmlFor="dob" className="text-sm text-zinc-400">Date of Birth</label>
                 <div className="relative">
                     <div
                     className="w-full p-1 rounded-lg flex items-center bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"
                     onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
                     >
-                    <FontAwesomeIcon icon={faCalendar} className="mr-2 text-zinc-400" />
-                    {formData.dob ? <p>{format(formData.dob, "dd/MM/yyyy")}</p> : <p className="text-zinc-400">Select date</p>}
+                    <Icon icon='calendar_month' size="18px" className="mr-2 text-zinc-400" />
+                    {formData.dob ? <p>{format(formData.dob, "dd/MM/yyyy")}</p> : <p className="text-zinc-400">Date of Birth</p>}
                     </div>
                     {isDatePickerOpen && renderDatePicker()}
                 </div>
             </div>
-            <div className="relative">
-                <label htmlFor="companyName" className="text-sm text-zinc-400">Company Name <abbr title="This will be the name displayed with your events."><FontAwesomeIcon className="text-xs ml-0.5" icon={faInfoCircle}/></abbr></label>
-                <input
-                    id="companyName"
-                    name="companyName"
-                    type="text"
-                    value={formData.companyName}
-                    onChange={(e) => setFormData(prevData => ({ ...prevData, companyName: e.target.value }))}
-                    className="w-full p-1 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"
-                />
-            </div>
+
+            <Input name="companyName" placeholder="Company Name" type="text" width="w-full" value={formData.companyName} 
+                onChange={(e) => setFormData(prevData => ({ ...prevData, companyName: e.target.value }))} />
             
-            <div className="relative flex gap-1 text-xs text-zinc-400">
+            
+            <div className="relative flex gap-1 -mt-2 text-xs text-zinc-400">
                 <input
                     className="opacity-75"
                     id="isCompanyRegistered"
@@ -300,19 +214,10 @@ export default function SignUp() {
                     Is company registered?
                 </label>
             </div>
+            <Input name="companyEmail" className="-mt-1" placeholder="Company Email" type="email" width="w-full" value={formData.companyMail} 
+                onChange={(e) => setFormData(prevData => ({ ...prevData, companyMail: e.target.value }))}/>
 
-            <div>
-                <label htmlFor="companyEmail" className="text-sm text-zinc-400">Company Email (if any)</label>
-                <input
-                    id="companyEmail"
-                    name="companyEmail"
-                    type="email"
-                    value={formData.companyMail}
-                    onChange={(e) => setFormData(prevData => ({ ...prevData, companyMail: e.target.value }))}
-                    className="w-full p-1 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 outline-none hover:ring-1 focus:ring-1 ring-gray-900"
-                />
-            </div>
-            <div>
+            <div className="-mt-2">
                 <label htmlFor="eventsHosted" className="text-sm text-zinc-400">Events hosted to date</label>
                 <select
                     id="eventsHosted"
@@ -331,9 +236,9 @@ export default function SignUp() {
             <div className="flex flex-col items-center mt-4">
 
                 <button type="submit"
-                    className="w-full p-2 rounded-lg bg-zinc-900 border border-gray-500 border-opacity-10 hover:ring-1 focus:ring-1 ring-gray-900"
-                    disabled={isSigningUp}>
-                {isSigningUp ? <p><FontAwesomeIcon icon={faCircleNotch} spin /></p> : <p>Become a Host!</p>}</button>
+                    className="w-full p-2 rounded-lg active:scale-90 duration-200 bg-eventr-main hover:bg-eventr-main-light border-opacity-10 hover:ring-1 focus:ring-1 ring-gray-900"
+                    disabled={isPending}>
+                {isPending ? <p><Icon icon="progress_activity" spin /></p> : <p>Become a Host!</p>}</button>
             </div>
         </form>
     </div>

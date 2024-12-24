@@ -72,9 +72,11 @@ const Input: React.FC<InputWrapperProps> = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className={`${responsive ? 'px-1.5 md:px-2.5' :'px-2.5'} ${(type==='date' || type==='time') ? 'py-[5px] text-sm h-10 md:text-base' : 'py-[7px]'} ${width} bg-eventr-gray-800 rounded-md border border-eventr-gray-700 outline-none ${className}`}
+        className={`${responsive ? 'px-1.5 md:px-2.5' :'px-2.5'} ${(type==='date' || type==='time') ? 'py-[5px] text-sm h-10 md:text-base' : 'py-[7px]'} ${width} 
+                    ${type == 'number' && 'indent-6'} bg-eventr-gray-800 rounded-md border border-eventr-gray-700 outline-none ${className}`}
       />
     {subtext && <p className="text-sm text-zinc-400">{subtext}</p>}
+    {type == 'number' && <span className={`absolute left-1.5 ${label ? 'top-[36px]' : 'top-2'} text-zinc-400`}>+91</span>}
     </div>
   );
 };

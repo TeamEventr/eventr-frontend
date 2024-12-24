@@ -1,3 +1,5 @@
+//update username regex
+
 "use client";
 import Link from "next/link";
 import { useState } from "react";
@@ -13,7 +15,7 @@ import { createHash } from "crypto";
 export default function Login() {
   const [isOpen, setIsOpen] = useRecoilState(showLoginModalState);
 
-  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [inputErrMsg, setInputErrMsg] = useState<string | null>(null);
 
@@ -28,13 +30,17 @@ export default function Login() {
     setInputErrMsg(null);
     const conditions = [
       {
-        condition: email === "" || password === "",
-        message: "Please fill all the fields.",
+      condition: username === "" || password === "",
+      message: "Please fill all the fields.",
       },
       {
-        condition: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-        message: "Email is not in the correct format.",
+      condition: username.trim().length < 5,
+      message: "Username must be at least 5 characters long.",
       },
+      {
+      condition: !/^[a-zA-Z0-9_.]+$/.test(username),
+      message: "Username can only contain letters, numbers, underscores, and periods.",
+      }
     ];
     for (const { condition, message } of conditions) {
       if (condition) {
@@ -44,7 +50,7 @@ export default function Login() {
     }
     const encryptedPassword = createHash("sha256").update(password).digest("hex");
     login({
-      email: email,
+      username: username,
       password: encryptedPassword,
     });
   };
@@ -76,12 +82,12 @@ export default function Login() {
 
           <Input
             type="text"
-            placeholder="Email"
-            name="email"
+            placeholder="Username"
+            name="username"
             width="w-full"
             className="mb-3"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
           <Password
             placeholder="Password"

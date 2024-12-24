@@ -1,109 +1,68 @@
 "use client"
 import { useState, useEffect, useRef } from "react";
-import ky, { HTTPError, TimeoutError } from 'ky';
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { API_ENDPOINTS } from "@/api/endpoints";
 import { useSearchParams } from "next/navigation";
 import secureLocalStorage from "react-secure-storage";
 import { createHash } from "crypto";
 import { Input, Password } from "../_components/input-wrapper";
 import Icon from "../_components/icon-wrapper";
-
-interface SignUpResponse {
-    email: string;
-    expiryAt: string;
-    message: string;
-    tempToken: string;
-    username: string;
-}
-interface SignUpForm{
-    email: string;
-    username: string;
-    password: string;
-}
-
-interface CheckUsernameResponse {
-    available: boolean;
-    message?: string;
-}
-
+import { useRegister, useUsernameCheck } from "@/api/hooks";
+import { Auth } from "@/api/types";
 
 export default function SignUp() {
 
     const router = useRouter();
-    const params = useSearchParams();
     
-    const [userName, setUserName] = useState<string>('');
+    const [username, setUserName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
-    const host = params.get('host');
+
+    const host = useSearchParams().get('host');
+
     const [isAvailable, setIsAvailable] =  useState<boolean | null>(null);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
 
     const [inputErrMsg, setInputErrMsg] = useState<string | null>(null); 
     const [signUpErrMsg, setSignUpErrMsg] = useState<string>('')
 
-    const [isSigningUp, setIsSigningUp] = useState<boolean>(false);
-
-    const userNameRef = useRef<HTMLInputElement>(null);
+    const usernameRef = useRef<HTMLInputElement>(null);
     const termsRef = useRef<HTMLInputElement>(null);
     
-    //Focus on username field when component loads
+    const { mutate: signUp, isPending } = useRegister();
+    
     useEffect(() => {
-        if (userNameRef.current) {
-            userNameRef.current.focus();
+        if (usernameRef.current) {
+            usernameRef.current.focus();
         }
     }, []);
 
-    //API to check if username available
-    const checkUserName = async (userName: string) => {
-        try {
-            const response = await ky.post(API_ENDPOINTS.USERNAME_CHECK,{
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                json: {username: userName}
-            }).json<CheckUsernameResponse>();
-            setIsAvailable(response.available)
-        }
-        catch (error) {
-            if(error instanceof HTTPError){
-                const errorData = await error.response.json();
-                if (error.response.status === 500) {
-                    setInputErrMsg("Server error. Please try again later.");
-                } else if(error.response.status === 409){
-                    setInputErrMsg("Username is already taken.");
-                    setIsAvailable(false);
-                } else {
-                    setInputErrMsg("An unexpected error occurred. Please try again.");
-                }
-            } else {
-                setInputErrMsg("An unexpected error occurred. Please try again.");
-            }
-        }
-    }
+    const { mutate: checkUserName } = useUsernameCheck();
 
-    //for checking username availibility a second after the user has started typing
     useEffect(() => {
         if (typingTimeout) {
             clearTimeout(typingTimeout);
         }
-        if(userName.length > 0){
+        if (username.length > 0) {
             setTypingTimeout(setTimeout(() => {
-                checkUserName(userName);
+                checkUserName(username, {
+                    onSuccess: (available) => {
+                        setIsAvailable(available);
+                    },
+                });
             }, 1000));
         } else {
-            setIsAvailable(null)
+            setIsAvailable(null);
         }
         return () => {
             if (typingTimeout) {
                 clearTimeout(typingTimeout);
             }
         };
-    }, [userName]);
+    }, [username]);
+    
 
     const checkPasswordStrength = (password: string): number => {
         let conditionsMet = 0;
@@ -121,9 +80,9 @@ export default function SignUp() {
     
         //Conditions to check if inputs are correct
         const conditions = [
-          { condition: userName === "" || email === "" || password === "" || confirmPassword === "", message: "Please fill all the fields." },
-          { condition: userName.length < 5 || userName.length > 32, message: "Username must be 5-25 characters long." },
-          { condition: !/^[a-zA-Z0-9_.]+$/.test(userName), message: "Username can only have letters, numbers . and _." },
+          { condition: username === "" || email === "" || password === "" || confirmPassword === "", message: "Please fill all the fields." },
+          { condition: username.length < 5 || username.length > 32, message: "Username must be 5-25 characters long." },
+          { condition: !/^[a-zA-Z0-9_.]+$/.test(username), message: "Username can only have letters, numbers . and _." },
           { condition: isAvailable === false, message: "Username is already taken." },
           { condition: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), message: "Email is not in the correct format." },
           { condition: checkPasswordStrength(password) < 4, message: "Password must contain A-Z, a-z and 0-9." },
@@ -140,69 +99,34 @@ export default function SignUp() {
         }
         const encryptedPass = createHash("sha256").update(password).digest("hex");
         //Create SigUpDetails onbject
-        const userSignUp: SignUpForm = {
-            username: userName,
+        const userSignUp: Auth.RegisterRequest = {
+            username: username,
             email: email,
             password: encryptedPass
         };
-        setIsSigningUp(true);
 
-        try {
-          const response = await ky.post(API_ENDPOINTS.USER_SIGNUP,{
-            headers: {
-            'Content-Type': 'application/json',
+
+        signUp(userSignUp, {
+            onSuccess: () => {
+                if (host) {
+                    router.push("/register/otp?verify=user&host=true");
+                } else {
+                    router.push("/register/otp?verify=user");
+                }
             },
-            json: userSignUp
-        }).json<SignUpResponse>();
-          // Code after signup successful
-          secureLocalStorage.setItem('accessKey', response.tempToken);          
-          secureLocalStorage.setItem('email', response.email);
-          secureLocalStorage.setItem('username', response.username);
-          if (host) {
-            router.push("/register/otp?verify=user&host=true");
-          } else {
-          router.push("/register/otp?verify=user");
-          }
-        //API failures
-    } catch (error) {
-    
-        if (error instanceof HTTPError) {
-            const errorData = await error.response.json();
-            
-            switch (error.response.status) {
-                case 400:
-                    setSignUpErrMsg("Bad request. Please check your input.");
-                    break;
-                case 409:
-                    setSignUpErrMsg(errorData.message === "Username or email have already been taken"
-                        ? "Email or Username already exists."
-                        : "Account registration is already underway. Redirecting to OTP."
-                    );
-
-                    if (errorData.message === "Account registration already underway") {
-                        if (host) {
-                            router.push("/register/otp?verify=user&host=true");
-                        } else {
-                            router.push("/register/otp?verify=user");
-                        }
+            onError: (error: Error) => {
+                if (error.message === "Redirect to OTP") {
+                    if (host) {
+                        router.push("/register/otp?verify=user&host=true");
+                    } else {
+                        router.push("/register/otp?verify=user");
                     }
-                    break;
-                case 500:
-                    setSignUpErrMsg("Server error. Please try again later.");
-                    break;
-                default:
-                    setSignUpErrMsg("An unexpected error occurred. Please try again.");
+                } else {
+                    setSignUpErrMsg(error.message);
+                }
             }
-        } else if (error instanceof TimeoutError) {
-            setSignUpErrMsg("Request timed out. Please try again.");
-        } else {
-            setSignUpErrMsg("An unexpected error occurred. Please try again.");
-        }
-
-        } finally {
-          setIsSigningUp(false);
-        }
-    };
+        });
+    }
     
 
     return(
@@ -222,9 +146,9 @@ export default function SignUp() {
                 </div>
 
                 <input
-                    ref={userNameRef}
-                    value={userName}
-                    id="userName"
+                    ref={usernameRef}
+                    value={username}
+                    id="username"
                     placeholder="Username"
                     onChange={(e) => setUserName(e.target.value)} 
                     className={`w-full px-2.5 py-1.5 bg-eventr-gray-800 rounded-md border border-eventr-gray-700 outline-none
@@ -254,8 +178,8 @@ export default function SignUp() {
 
                     <button type="submit"
                         className="w-full p-2 rounded-lg bg-zinc-900 text-zinc-300 border border-gray-500 border-opacity-10 hover:ring-1 focus:ring-1 ring-gray-900"
-                        disabled={isSigningUp}>
-                    {isSigningUp ? <Icon icon="progress_activity"/> : <p>Create Account</p>}</button>
+                        disabled={isPending}>
+                    {isPending ? <Icon icon="progress_activity" spin/> : <p>Create Account</p>}</button>
 
                     <p className="text-xs text-zinc-400 my-1">or</p>
 

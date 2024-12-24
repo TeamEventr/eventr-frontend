@@ -1,17 +1,33 @@
-// In Next.js, this file would be called: app/providers.tsx
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
-import { RecoilRoot } from "recoil";
+import { RecoilRoot, useSetRecoilState } from "recoil";
 import NavBar from "./_components/nav-bar";
 import Footer from "./_components/footer";
 import Login from "./_components/login-modal";
-import { AnimatePresence } from "motion/react";
+import { authState } from "@/api/atoms";
+import secureLocalStorage from "react-secure-storage";
 
 export default function Provider({ children }: { children: ReactNode }) {
+
+  function AuthInitializer() {
+    const setAuth = useSetRecoilState(authState);
+  
+    useEffect(() => {
+      const token = secureLocalStorage.getItem("authToken");
+      if (token) {
+        setAuth(true);
+      }
+    }, [setAuth]);
+  
+    return null;
+  }
+
+
+
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -27,6 +43,7 @@ export default function Provider({ children }: { children: ReactNode }) {
     <RecoilRoot>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
+        <AuthInitializer />
         <NavBar/>
         <div className="relative w-full">
           <Login/>
